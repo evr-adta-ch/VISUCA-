@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VISUCA - Directory &amp; Weather</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #fff8f8;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #092e29;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+        }
+        .weather-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 40px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .weather-icon {
+            width: 80px;
+            height: 80px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+        .weather-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+        .weather-info h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .weather-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body  style="background-image: url(img/bg-img/weather.webp)";>
+    <div class="container">
+        <h1>WEATHER</h1>
+        <button onclick="getLocation()">Get my location</button>
+        <div id="weather"></div>
+        <div id="forecast"></div>
+    </div>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("The localisation is not suported by the browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+
+            // Récupérer les données météorologiques actuelles
+            var apiKey = "e5b85b1516041789f23fd5d011cda379";
+            var currentWeatherUrl = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + apiKey;
+
+            fetch(currentWeatherUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var currentWeatherData = {
+                        temperature: Math.round(data.main.temp - 273.15),
+                        description: data.weather[0].description,
+                        icon: data.weather[0].icon,
+                        humidity: data.main.humidity,
+                        windSpeed: data.wind.speed,
+                        windDirection: data.wind.deg
+                    };
+
+                    // Afficher les données météorologiques actuelles
+                    var weatherElement = document.getElementById("weather");
+                    weatherElement.innerHTML = `
+                        <div class="weather-card">
+                            <div class="weather-icon" style="background-image: url('chemin/vers/icone/${currentWeatherData.icon}.png');"></div>
+                            <div class="weather-info">
+                                <h3>Actual weather</h3>
+                                <p><strong>Temperature :</strong> ${currentWeatherData.temperature}°C</p>
+                                <p><strong>Description :</strong> ${currentWeatherData.description}</p>
+                                <p><strong>Humidity :</strong> ${currentWeatherData.humidity}%</p>
+                                <p><strong>Wind speed :</strong> ${currentWeatherData.windSpeed} m/s</p>
+                                <p><strong>Wind direction :</strong> ${currentWeatherData.windDirection}°</p>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert("Une erreur s'est produite lors de la récupération des données météorologiques actuelles.");
+                });
+
+            // Récupérer les prévisions météorologiques pour la semaine
+            var forecastUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + latitude + "&lon=" + longitude + "&appid=" + apiKey;
+
+            fetch(forecastUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var forecastData = data.list;
+
+                    // Afficher les prévisions météorologiques pour la semaine
+                    var forecastElement = document.getElementById("forecast");
+                    forecastElement.innerHTML = `
+                        <h2 style="color: white"; >Forecast for the week</h2>
+                    `;
+
+                    forecastData.forEach(forecast => {
+                        var forecastWeatherData = {
+                            date: forecast.dt_txt,
+                            temperature: Math.round(forecast.main.temp - 273.15),
+                            description: forecast.weather[0].description,
+                            icon: forecast.weather[0].icon,
+                            humidity: forecast.main.humidity,
+                            windSpeed: forecast.wind.speed,
+                            windDirection: forecast.wind.deg
+                        };
+
+                        var forecastCard = document.createElement("div");
+                        forecastCard.className = "weather-card";
+                        forecastCard.innerHTML = `
+                            <div class="weather-icon" style="background-image: url('chemin/vers/icone/${forecastWeatherData.icon}.png');"></div>
+                            <div class="weather-info">
+                                <h3>${forecastWeatherData.date}</h3>
+                                <p><strong>Temperature :</strong> ${forecastWeatherData.temperature}°C</p>
+                                <p><strong>Description :</strong> ${forecastWeatherData.description}</p>
+                                <p><strong>Humidity :</strong> ${forecastWeatherData.humidity}%</p>
+                                <p><strong>Wind speed :</strong> ${forecastWeatherData.windSpeed} m/s</p>
+                                <p><strong>Wind direction :</strong> ${forecastWeatherData.windDirection}°</p>
+                            </div>
+                        `;
+                        forecastElement.appendChild(forecastCard);
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert("Une erreur s'est produite lors de la récupération des prévisions météorologiques.");
+                });
+        }
+    </script>
+</body>
+</html>

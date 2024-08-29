@@ -1,0 +1,74 @@
+<div class="hero-search-form">
+                    <div class="tab-content" id="nav-tabContent" style="overflow-y: auto; scrollbar-width: none;">
+                    <div class="tab-pane fade show active" id="nav-places" role="tabpanel" aria-labelledby="nav-places-tab">
+                        <div class="restaurant-grid-container">
+                        <div class="restaurant-grid">
+                            <?php
+                            include 'database.php';
+                            global $db;
+
+                            $query = $db->query("SELECT Nom, title, image1, 'restaurants-presentation-page.php?nom=' as PageLink FROM restaurants");
+                            while ($restau = $query->fetch()) {
+                            echo '<div class="restaurant-card slide-in" onclick="redirectToPage(\'' . $restau['Nom'] . '\', \'' . $restau['PageLink'] . '\')">
+                                    <div class="restaurant-info">
+                                        <h2>' . $restau['Nom'] . '</h2>
+                                        <p>' . $restau['title'] . '</p>
+                                    </div>
+                                    </div>';
+                            }
+                            ?>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <script>
+                    function redirectToPage(nomRestaurant, pageLink) {
+                        if (pageLink) {
+                            window.location.href = pageLink + nomRestaurant;
+                        }
+                    }
+                </script>
+            </div>
+         </div>
+    </div>
+    <style>
+ /* Grille de restaurants */
+      .restaurant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-gap: 20px;
+        padding: 20px;
+      }
+
+      .restaurant-grid-container {
+    height: 400px; /* Ajustez cette valeur pour contrôler la hauteur de la zone de défilement */
+    overflow-y: auto;
+    }
+
+  
+      .restaurant-card {
+        background-color: #f1f1f1;
+        transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        transform: translateY(-10px);
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out
+      }
+  
+      .restaurant-card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+      }
+  
+      .restaurant-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+  
+      .restaurant-info {
+        padding: 20px;
+      }
+        </style>
